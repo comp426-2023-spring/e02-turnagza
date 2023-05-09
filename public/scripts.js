@@ -1,70 +1,84 @@
 //script start, majority of code found on SE through js scripting forum
 function displayShots() {
-    let rps_checked = document.getElementById("rps").checked;
-    let rpsls_checked = document.getElementById("rpsls").checked;
-    if (!rps_checked && !rpsls_checked) {document.getElementById("rps").click();}
-    let shot_options = document.getElementById("shot_options");
-    let opponent_checked = document.getElementById("opponent").checked;
-    shot_options.className = opponent_checked ? "active" : "inactive";
-}
+    const rps = document.getElementById("rps");
+    const rpsls = document.getElementById("rpsls");
+    if (!rps.checked && !rpsls.checked) {
+      rps.click();
+    }
+    const shotOptions = document.getElementById("shot_options");
+    const opponent = document.getElementById("opponent");
+    shotOptions.className = opponent.checked ? "active" : "inactive";
+  }
+  
 function startOver() {
-    document.getElementById("game_options").className = "active";
-    document.getElementById("shot_options").className = "inactive";
-    document.getElementById("result").className = "inactive";
-    document.getElementById("play").className = "active";
-    document.getElementById("rps").checked = false;
-    document.getElementById("rpsls").checked = false;
-    document.getElementById("opponent").checked = false;
-    document.getElementById("rock").checked = false;
-    document.getElementById("paper").checked = false;
-    document.getElementById("scissors").checked = false;
-    document.getElementById("lizard").checked = false;
-    document.getElementById("spock").checked = false;
-}
+    const gameOptions = document.getElementById("game_options");
+    const shotOptions = document.getElementById("shot_options");
+    const result = document.getElementById("result");
+    const play = document.getElementById("play");
+  
+    gameOptions.className = "active";
+    shotOptions.className = "inactive";
+    result.className = "inactive";
+    play.className = "active";
+  
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => (checkbox.checked = false));
+  }
+  
 function displayRPSLSOptions() {
-    let rps_shot_options = document.getElementsByName("rps_shot_option");
-    rps_shot_options.forEach(rps_shot_option => {rps_shot_option.className = "active"})
-
-    let rpsls_checked = document.getElementById("rpsls").checked;
-    let rpsls_shot_options = document.getElementsByName("rpsls_shot_option");
-    rpsls_shot_options.forEach(rpsls_shot_option => {rpsls_shot_option.className = rpsls_checked ? "active" : "inactive";})
-}
+    const rpsShotOptions = document.querySelectorAll('input[name="rps_shot_option"]');
+    rpsShotOptions.forEach((rpsShotOption) => (rpsShotOption.className = "active"));
+  
+    const rpsls = document.getElementById("rpsls");
+    const rpslsShotOptions = document.querySelectorAll('input[name="rpsls_shot_option"]');
+    rpslsShotOptions.forEach((rpslsShotOption) => {
+      rpslsShotOption.className = rpsls.checked ? "active" : "inactive";
+    });
+  }
+  
 async function play() {
-    let rps_checked = document.getElementById("rps").checked;
-    let rpsls_checked = document.getElementById("rpsls").checked;
-    if (!rps_checked && !rpsls_checked) {
-        alert("Please select a game mode.");
-        throw new RangeError(`Must select game mode before playing.`);
+    const rps = document.getElementById("rps");
+    const rpsls = document.getElementById("rpsls");
+    if (!rps.checked && !rpsls.checked) {
+      alert("Please select a game mode.");
+      throw new RangeError(`Must select game mode before playing.`);
     }
-    document.getElementById("game_options").className = "inactive";
-    document.getElementById("shot_options").className = "inactive";
-    document.getElementById("result").className = "active";
-    document.getElementById("play").className = "inactive";
-
-    let game_mode = rps_checked ? "rps" : "rpsls";
-    let opponent_checked = document.getElementById("opponent").checked;
+  
+    const gameOptions = document.getElementById("game_options");
+    const shotOptions = document.getElementById("shot_options");
+    const result = document.getElementById("result");
+    const play = document.getElementById("play");
+  
+    gameOptions.className = "inactive";
+    shotOptions.className = "inactive";
+    result.className = "active";
+    play.className = "inactive";
+  
+    const gameMode = rps.checked ? "rps" : "rpsls";
+    const opponent = document.getElementById("opponent");
     let shot = "";
-    if (opponent_checked) {
-        shot = document.querySelector('input[type="radio"][name*="shot_option"]:checked').value;
+    if (opponent.checked) {
+      shot = document.querySelector('input[type="radio"][name*="shot_option"]:checked').value;
     }
-
-    let api_url = `${document.baseURI}app/${game_mode}/play/${shot}`;
-    await fetch(api_url)
-        .then(function(response) {
-            return response.json();
-        })
-            .then(function(result) {
-                console.log(result);
-                let result_element = document.getElementById("result");
-                if (opponent_checked) {
-                    result_element.innerHTML = `<p>You: ${capitalizeFirstLetter(result.player)}</p>
-                    <p>Your opponent: ${capitalizeFirstLetter(result.opponent)}</p>
-                    <p>Result: You ${result.result.toUpperCase()}</p>`;
-                } else {
-                    result_element.innerHTML = result.player.toUpperCase();
-                }
-            });
-}
+  
+    const apiUrl = `${document.baseURI}app/${gameMode}/play/${shot}`;
+    const response = await fetch(apiUrl);
+    const resultJson = await response.json();
+  
+    console.log(resultJson);
+  
+    if (opponent.checked) {
+      result.innerHTML = `<p>You: ${capitalizeFirstLetter(resultJson.player)}</p>
+                          <p>Your opponent: ${capitalizeFirstLetter(resultJson.opponent)}</p>
+                          <p>Result: You ${resultJson.result.toUpperCase()}</p>`;
+    } else {
+      result.innerHTML = resultJson.player.toUpperCase();
+    }
+  }
+  
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }  
 /**
  * @param {*} string 
  * @returns string with first letter capitalized
